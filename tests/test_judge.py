@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 import httpx
@@ -157,3 +158,39 @@ def test_make_labels_with_no_valid_scores_returns_empty():
     prompts = pd.DataFrame({"id": ["a"], "split": "train", "source": "s", "category": "x"})
     judgments = pd.DataFrame({"id": ["a", "a"], "role": ["small", "large"], "score": [None, None]})
     assert jd.make_labels(prompts, judgments, margin=0).empty
+
+
+@respx.mock
+async def test_score_row_uses_gold_answer_for_gsm8k_without_calling_the_judge(client):
+    route = respx.post(f"{BASE}/chat/completions")
+    row = pd.DataFrame(
+        [
+            {
+                "id": "g",
+                "source": "gsm8k",
+                "prompt": "p",
+                "small_answer": "so **18**",
+                "large_answer": "17",
+                "gold_answer": "18",
+            }
+        ]
+    ).iloc[0]
+    sandbox = asyncio.Semaphore(1)
+    small = await jd.score_row(client, sandbox, row, "small")
+    large = await jd.score_row(client, sandbox, row, "large")
+    assert (small["scorer"], small["score"], large["score"]) == ("gsm8k_exact", 5, 1)
+    assert route.call_count == 0
+    await client.aclose()
+
+
+@respx.mock
+async def test_score_row_sends_dolly_to_the_llm_judge(client):
+    respx.post(f"{BASE}/chat/completions").mock(
+        return_value=completion('{"score": 4, "reason": "ok"}')
+    )
+    row = pd.DataFrame(
+        [{"id": "d", "source": "dolly", "prompt": "p", "small_answer": "a", "large_answer": "b"}]
+    ).iloc[0]
+    out = await jd.score_row(client, asyncio.Semaphore(1), row, "small")
+    assert (out["scorer"], out["score"]) == ("llm_judge", 4)
+    await client.aclose()

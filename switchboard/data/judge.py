@@ -1,10 +1,15 @@
-"""Step 3: judge every answer on its own and derive the routing label.
+"""Step 3: score every answer on its own and derive the routing label.
 
-Input:  data/prompts.parquet, data/answers.parquet
+Input:  data/prompts.parquet, data/answers.parquet, data/references.parquet
 Output: data/judgments.parquet  one row per (prompt, role):
-            id, role, score, reason, attempts, error
+            id, role, scorer, score, reason, attempts, error
         data/labels.parquet     one row per prompt with both answers judged:
             id, split, source, category, small_score, large_score, small_ok
+
+Scorer per source:
+    gsm8k         gsm8k_exact  final number equals the gold answer (5) or not (1)
+    mbpp          mbpp_tests   code passes all tests in a sandboxed subprocess (5) or not (1)
+    dolly, oasst1 llm_judge    the LLM judge below
 
 The judge sees the prompt and one answer, never which model wrote it, and returns
 {"score": int, "reason": str}. An invalid reply is retried once with a correction message;
@@ -27,11 +32,14 @@ import httpx
 import pandas as pd
 
 from switchboard.config import ROOT, settings
+from switchboard.data.reference_scoring import RefScore, score_gsm8k, score_mbpp
+from switchboard.data.references import load_references
 from switchboard.llm import DailyLimitError, LLMClient
 
 DATA_DIR = ROOT / "data"
 ROLES = ("small", "large")
 MIN_CLASS_SHARE = 0.20
+SANDBOX_SLOTS = 4  # mbpp test runs at once
 Score = int | pd.Series
 
 SYSTEM_PROMPT = """You are a strict, fair grader. You see a user's request and one \
@@ -132,11 +140,36 @@ async def judge_row(client: LLMClient, row_id: str, role: str, prompt: str, answ
     return {
         "id": row_id,
         "role": role,
+        "scorer": "llm_judge",
         "score": j.score,
         "reason": j.reason,
         "attempts": j.attempts,
         "error": j.error,
     }
+
+
+def reference_row(row_id: str, role: str, scorer: str, ref: RefScore) -> dict:
+    return {
+        "id": row_id,
+        "role": role,
+        "scorer": scorer,
+        "score": ref.score,
+        "reason": ref.reason,
+        "attempts": 0,
+        "error": None,
+    }
+
+
+async def score_row(client: LLMClient, sandbox: asyncio.Semaphore, r: Any, role: str) -> dict:
+    """Score one answer with the scorer its source calls for."""
+    answer = getattr(r, f"{role}_answer")
+    if r.source == "gsm8k":
+        return reference_row(r.id, role, "gsm8k_exact", score_gsm8k(answer, r.gold_answer))
+    if r.source == "mbpp":
+        async with sandbox:
+            ref = await asyncio.to_thread(score_mbpp, answer, r.test_setup_code, list(r.tests))
+        return reference_row(r.id, role, "mbpp_tests", ref)
+    return await judge_row(client, r.id, role, r.prompt, answer)
 
 
 def answered_prompts(prompts: pd.DataFrame, answers: pd.DataFrame) -> pd.DataFrame:
@@ -154,12 +187,9 @@ def select(df: pd.DataFrame, limit: int | None, seed: int) -> pd.DataFrame:
 
 
 async def judge_all(rows: pd.DataFrame) -> pd.DataFrame:
+    sandbox = asyncio.Semaphore(SANDBOX_SLOTS)
     async with LLMClient() as client:
-        tasks = [
-            judge_row(client, r.id, role, r.prompt, getattr(r, f"{role}_answer"))
-            for r in rows.itertuples()
-            for role in ROLES
-        ]
+        tasks = [score_row(client, sandbox, r, role) for r in rows.itertuples() for role in ROLES]
         out = []
         for i, fut in enumerate(asyncio.as_completed(tasks), start=1):
             out.append(await fut)
@@ -215,8 +245,8 @@ def summarize(judgments: pd.DataFrame, labels: pd.DataFrame) -> None:
     print(f"retried once: {(judgments['attempts'] == 2).sum()}")
     for err in judgments.loc[judgments["error"].notna() & ~limited, "error"].unique()[:5]:
         print("error:", err)
-    print("\nscore distribution:")
-    print(pd.crosstab(judgments["role"], judgments["score"]), "\n")
+    print("\nscore distribution by scorer:")
+    print(pd.crosstab([judgments["scorer"], judgments["role"]], judgments["score"]), "\n")
     print("mean score:", judgments.groupby("role")["score"].mean().round(2).to_dict())
     balance = label_balance(labels)
     print(f"\nlabel balance ({len(labels)} labelled prompts):")
@@ -242,7 +272,8 @@ def main() -> None:
 
     prompts = pd.read_parquet(DATA_DIR / "prompts.parquet")
     answers = pd.read_parquet(DATA_DIR / "answers.parquet")
-    pool = answered_prompts(prompts, answers)
+    refs = load_references(prompts)
+    pool = answered_prompts(prompts, answers).merge(refs, on="id", how="left")
     print(f"{len(pool)}/{len(prompts)} prompts have both answers")
     rows = select(pool, args.limit, settings().dataset.seed)
 

@@ -82,9 +82,14 @@ def load_oasst1() -> pd.DataFrame:
     )
 
 
-def load_gsm8k() -> pd.DataFrame:
+def raw_gsm8k() -> pd.DataFrame:
+    """All gsm8k rows in a fixed order. Prompt ids are positions in this frame."""
     parts = [load_dataset("openai/gsm8k", "main", split=s) for s in ("train", "test")]
-    ds = concatenate_datasets(parts).to_pandas()
+    return concatenate_datasets(parts).to_pandas()
+
+
+def load_gsm8k() -> pd.DataFrame:
+    ds = raw_gsm8k()
     return pd.DataFrame(
         {
             "id": "gsm8k-" + ds.index.astype(str),
@@ -101,10 +106,14 @@ def mbpp_prompt(text: str, tests: list[str]) -> str:
     return f"{text.strip()}\nYour code should pass this test:\n{tests[0]}"
 
 
-def load_mbpp() -> pd.DataFrame:
+def raw_mbpp() -> pd.DataFrame:
     splits = ("train", "validation", "test", "prompt")
     parts = [load_dataset("google-research-datasets/mbpp", "full", split=s) for s in splits]
-    ds = concatenate_datasets(parts).to_pandas()
+    return concatenate_datasets(parts).to_pandas()
+
+
+def load_mbpp() -> pd.DataFrame:
+    ds = raw_mbpp()
     return pd.DataFrame(
         {
             "id": "mbpp-" + ds["task_id"].astype(str),
