@@ -108,7 +108,9 @@ def load_mbpp() -> pd.DataFrame:
     return pd.DataFrame(
         {
             "id": "mbpp-" + ds["task_id"].astype(str),
-            "prompt": [mbpp_prompt(t, list(tl)) for t, tl in zip(ds["text"], ds["test_list"])],
+            "prompt": [
+                mbpp_prompt(t, list(tl)) for t, tl in zip(ds["text"], ds["test_list"], strict=True)
+            ],
             "source": "mbpp",
             "category": "coding",
             "subcategory": "python_function",

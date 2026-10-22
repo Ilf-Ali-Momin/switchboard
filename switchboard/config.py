@@ -50,6 +50,10 @@ class DatasetSettings(BaseModel):
     source_mix: dict[str, float]
 
 
+class JudgingSettings(BaseModel):
+    max_tokens: int
+
+
 class LabelingSettings(BaseModel):
     margin: float
 
@@ -67,6 +71,7 @@ class Settings(BaseModel):
     groq: GroqSettings
     generation: GenerationSettings
     dataset: DatasetSettings
+    judging: JudgingSettings
     labeling: LabelingSettings
     eval: EvalSettings
 

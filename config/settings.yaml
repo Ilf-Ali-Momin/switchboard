@@ -1,6 +1,6 @@
 small_model: "openai/gpt-oss-20b"
 large_model: "openai/gpt-oss-120b"
-judge_model: "llama-3.3-70b-versatile"   # different family from small and large
+judge_model: "qwen/qwen3.8-27b"   # different family; preview model, llama not available to this account (2026-10-23)
 encoder_model: "answerdotai/ModernBERT-base"   # fallback: microsoft/deberta-v3-small
 prices_per_million_tokens:   # USD, from console.groq.com/docs/models
   checked_on: "2026-10-16"
@@ -26,6 +26,8 @@ dataset:
     oasst1: 0.20
     gsm8k: 0.20
     mbpp: 0.20
+judging:
+  max_tokens: 300          # the judge returns a short JSON object
 labeling:
   margin: 0              # small_ok when small_score >= large_score - margin
 eval:
