@@ -1,0 +1,32 @@
+small_model: "openai/gpt-oss-20b"
+large_model: "openai/gpt-oss-120b"
+judge_model: "llama-3.3-70b-versatile"   # different family from small and large
+encoder_model: "answerdotai/ModernBERT-base"   # fallback: microsoft/deberta-v3-small
+prices_per_million_tokens:   # USD, from console.groq.com/docs/models
+  checked_on: "2026-10-16"
+  small: { input: 0.075, output: 0.30 }
+  large: { input: 0.15, output: 0.60 }
+groq:
+  base_url: "https://api.groq.com/openai/v1"
+  concurrency: 1           # free tier: 8000 tokens/min, 1000 requests/day per model
+  max_retries: 6
+  timeout_s: 60
+  cache_path: "data/llm_cache.jsonl"
+generation:
+  max_tokens: 4096          # cap on output tokens, reasoning included
+  reasoning_effort: "medium"  # gpt-oss setting, same for small and large
+dataset:
+  total_prompts: 2000
+  max_prompt_tokens: 512
+  split: { train: 0.70, val: 0.15, test: 0.15 }
+  seed: 42
+  # share of total_prompts drawn from each source
+  source_mix:
+    dolly: 0.40
+    oasst1: 0.20
+    gsm8k: 0.20
+    mbpp: 0.20
+labeling:
+  margin: 0              # small_ok when small_score >= large_score - margin
+eval:
+  target_quality_retained: 0.95
