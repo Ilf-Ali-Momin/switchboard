@@ -7,15 +7,15 @@
     <key>ProgramArguments</key>
     <array>
         <string>/bin/bash</string>
-        <string>/Users/ilfalimomin/llm router/scripts/resume_generate.sh</string>
+        <string>__REPO__/scripts/resume_generate.sh</string>
     </array>
     <key>StartInterval</key>
     <integer>21600</integer>
     <key>RunAtLoad</key>
     <false/>
     <key>StandardOutPath</key>
-    <string>/Users/ilfalimomin/llm router/data/launchd.out.log</string>
+    <string>__REPO__/data/launchd.out.log</string>
     <key>StandardErrorPath</key>
-    <string>/Users/ilfalimomin/llm router/data/launchd.err.log</string>
+    <string>__REPO__/data/launchd.err.log</string>
 </dict>
 </plist>

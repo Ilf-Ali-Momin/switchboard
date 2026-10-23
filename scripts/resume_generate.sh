@@ -1,11 +1,13 @@
 #!/bin/bash
 # Resume the step 2 generate run on the Groq free tier.
-# Run by launchd every 6 hours (see scripts/com.switchboard.generate-resume.plist).
+# Run by launchd every 6 hours (see scripts/com.switchboard.generate-resume.plist; replace
+# __REPO__ in it with the absolute repo path and copy it to ~/Library/LaunchAgents).
 # Skips when a run is live, when the run is complete, or when the last run hit a real error.
 set -u
 
-ROOT="/Users/ilfalimomin/llm router"
-UV="/Users/ilfalimomin/.local/bin/uv"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# launchd runs with a minimal PATH, so fall back to uv's default install location.
+UV="$(command -v uv || echo "$HOME/.local/bin/uv")"
 LOG="$ROOT/data/generate_full.log"
 RESUME_LOG="$ROOT/data/resume.log"
 
