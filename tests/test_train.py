@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 from transformers import EvalPrediction
 
+from switchboard.eval.metrics import safe_roc_auc
 from switchboard.train import train as tr
 
 
@@ -13,8 +14,8 @@ def test_small_ok_probability_is_softmax_of_class_one():
 
 
 def test_safe_roc_auc_handles_a_single_class():
-    assert tr.safe_roc_auc(np.array([1, 1, 1]), np.array([0.1, 0.5, 0.9])) is None
-    assert tr.safe_roc_auc(np.array([0, 1]), np.array([0.2, 0.8])) == 1.0
+    assert safe_roc_auc(np.array([1, 1, 1]), np.array([0.1, 0.5, 0.9])) is None
+    assert safe_roc_auc(np.array([0, 1]), np.array([0.2, 0.8])) == 1.0
 
 
 def test_compute_metrics():

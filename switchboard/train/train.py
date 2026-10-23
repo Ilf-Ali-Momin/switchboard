@@ -26,7 +26,6 @@ import numpy as np
 import pandas as pd
 import torch
 from datasets import Dataset
-from sklearn.metrics import roc_auc_score
 from transformers import (
     AutoModelForSequenceClassification,
     AutoTokenizer,
@@ -39,6 +38,7 @@ from transformers import (
 )
 
 from switchboard.config import ROOT, settings
+from switchboard.eval.metrics import safe_roc_auc
 
 DATA_DIR = ROOT / "data"
 METRICS_PATH = ROOT / "results" / "train_metrics.json"
@@ -84,13 +84,6 @@ def small_ok_probability(logits: np.ndarray) -> np.ndarray:
     shifted = logits - logits.max(axis=1, keepdims=True)
     exp = np.exp(shifted)
     return exp[:, 1] / exp.sum(axis=1)
-
-
-def safe_roc_auc(labels: np.ndarray, scores: np.ndarray) -> float | None:
-    """ROC AUC, or None when val holds only one class."""
-    if len(np.unique(labels)) < 2:
-        return None
-    return float(roc_auc_score(labels, scores))
 
 
 def compute_metrics(pred: EvalPrediction) -> dict[str, float]:
