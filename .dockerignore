@@ -1,0 +1,15 @@
+.git
+.venv
+.env
+data
+models
+results
+notebooks
+tests
+scripts
+__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+CLAUDE.md
+.claude

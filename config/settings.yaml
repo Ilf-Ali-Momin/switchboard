@@ -39,3 +39,9 @@ training:
   warmup_ratio: 0.1
 eval:
   target_quality_retained: 0.95
+serve:
+  threshold: null            # null = the operating threshold in results/results.json
+  model_dir: "models/router"
+  decision_log_path: "data/decisions.jsonl"
+  max_body_bytes: 1000000    # requests above this get 413
+  upstream_timeout_s: 120

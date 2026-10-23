@@ -71,6 +71,14 @@ class EvalSettings(BaseModel):
     target_quality_retained: float
 
 
+class ServeSettings(BaseModel):
+    threshold: float | None
+    model_dir: str
+    decision_log_path: str
+    max_body_bytes: int
+    upstream_timeout_s: float
+
+
 class Settings(BaseModel):
     small_model: str
     large_model: str
@@ -84,6 +92,7 @@ class Settings(BaseModel):
     labeling: LabelingSettings
     training: TrainingSettings
     eval: EvalSettings
+    serve: ServeSettings
 
 
 def load_settings(path: Path = SETTINGS_PATH) -> Settings:

@@ -1,0 +1,30 @@
+# Runs the proxy in its own container on its own port. It shares no network or volume with
+# other services on the host.
+#
+#   docker compose up -d --build
+#
+# Needs models/router (step 5) and results/results.json (step 6) next to this file, and
+# GROQ_API_KEY and PROXY_API_KEY in .env. Without a model or threshold it still starts and
+# sends every "auto" request to the large model.
+services:
+  switchboard:
+    build: .
+    image: switchboard:latest
+    container_name: switchboard
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8100:8100"   # localhost only; put a reverse proxy with TLS in front
+    environment:
+      GROQ_API_KEY: ${GROQ_API_KEY:?set GROQ_API_KEY in .env}
+      PROXY_API_KEY: ${PROXY_API_KEY:?set PROXY_API_KEY in .env}
+    volumes:
+      - ./models/router:/app/models/router:ro
+      - ./results:/app/results:ro
+      - switchboard-data:/app/data   # decision log
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+
+volumes:
+  switchboard-data:
