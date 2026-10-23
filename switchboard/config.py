@@ -58,6 +58,15 @@ class LabelingSettings(BaseModel):
     margin: float
 
 
+class TrainingSettings(BaseModel):
+    output_dir: str
+    epochs: float
+    batch_size: int
+    learning_rates: list[float]
+    weight_decay: float
+    warmup_ratio: float
+
+
 class EvalSettings(BaseModel):
     target_quality_retained: float
 
@@ -73,6 +82,7 @@ class Settings(BaseModel):
     dataset: DatasetSettings
     judging: JudgingSettings
     labeling: LabelingSettings
+    training: TrainingSettings
     eval: EvalSettings
 
 

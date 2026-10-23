@@ -16,7 +16,8 @@ The judge sees the prompt and one answer, never which model wrote it, and return
 a second failure marks the row as failed and it is excluded from the labels.
 
 Only prompts whose small and large answers both exist are judged. With --limit N the first N
-of those in a seeded shuffle are judged and outputs get a .limitN suffix.
+of those in a seeded shuffle are judged and outputs get a .limitN suffix. --sources restricts
+the run to some sources (gsm8k mbpp needs no LLM calls) and adds a .src-... suffix.
 """
 
 from __future__ import annotations
@@ -229,8 +230,10 @@ def imbalanced_categories(balance: pd.DataFrame, min_share: float = MIN_CLASS_SH
     return balance.index[(share < min_share) | (share > 1 - min_share)].tolist()
 
 
-def paths(limit: int | None) -> tuple[Path, Path]:
+def paths(limit: int | None, sources: list[str] | None = None) -> tuple[Path, Path]:
     suffix = "" if limit is None else f".limit{limit}"
+    if sources:
+        suffix += ".src-" + "-".join(sorted(sources))
     return DATA_DIR / f"judgments{suffix}.parquet", DATA_DIR / f"labels{suffix}.parquet"
 
 
@@ -268,18 +271,23 @@ def show_examples(rows: pd.DataFrame, judgments: pd.DataFrame, n: int = 3) -> No
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--limit", type=int, default=None, help="judge only N prompts")
+    parser.add_argument(
+        "--sources", nargs="+", default=None, help="only these sources, e.g. gsm8k mbpp"
+    )
     args = parser.parse_args()
 
     prompts = pd.read_parquet(DATA_DIR / "prompts.parquet")
     answers = pd.read_parquet(DATA_DIR / "answers.parquet")
     refs = load_references(prompts)
     pool = answered_prompts(prompts, answers).merge(refs, on="id", how="left")
+    if args.sources:
+        pool = pool[pool["source"].isin(args.sources)]
     print(f"{len(pool)}/{len(prompts)} prompts have both answers")
     rows = select(pool, args.limit, settings().dataset.seed)
 
     judgments = asyncio.run(judge_all(rows))
     labels = make_labels(prompts, judgments, settings().labeling.margin)
-    judgments_path, labels_path = paths(args.limit)
+    judgments_path, labels_path = paths(args.limit, args.sources)
     judgments.to_parquet(judgments_path, index=False)
     labels.to_parquet(labels_path, index=False)
     summarize(judgments, labels)

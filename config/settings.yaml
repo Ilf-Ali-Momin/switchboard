@@ -30,5 +30,12 @@ judging:
   max_tokens: 300          # the judge returns a short JSON object
 labeling:
   margin: 0              # small_ok when small_score >= large_score - margin
+training:
+  output_dir: "models/router"
+  epochs: 3
+  batch_size: 16
+  learning_rates: [2.0e-5, 3.0e-5, 5.0e-5]   # grid; the best val ROC AUC wins
+  weight_decay: 0.01
+  warmup_ratio: 0.1
 eval:
   target_quality_retained: 0.95
