@@ -8,7 +8,7 @@ written by hand.
 
 ## Reproduce
 
-```bash
+bash
 uv sync
 uv run python -m switchboard.data.collect --limit 20
-```
+
