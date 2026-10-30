@@ -1,14 +1,17 @@
 """Step 4: check the LLM judge against hand labels.
 
-Samples rows from the train split, stratified by category, among prompts the LLM judge scored
-(gsm8k and mbpp are scored against ground truth and need no calibration). For each row it shows
+Samples rows from the train split, stratified by category, among prompts the LLM judge scores
+(gsm8k and mbpp are scored against ground truth and need no calibration). The sample is drawn
+from the prompts and answers, not from the judge's labels, so hand labelling can happen while
+the judge run is still going. For each row it shows
 the prompt and both answers as "Answer A" and "Answer B" in a random order with no model names,
 and asks which is better. A choice of the small model's answer or a tie means the small answer
 was good enough, which is the label rule with margin 0.
 
 Each answer is saved at once to data/calibration_labels.jsonl, so a session can stop with q and
-resume later. When enough rows are labelled, agreement and Cohen's kappa against the judge's
-labels are written to results/judge_calibration.json.
+resume later. Once data/labels.parquet exists, agreement and Cohen's kappa against the judge's
+labels are written to results/judge_calibration.json. Run --report again after the judge run
+finishes so every hand label has a judge label to compare with.
 
     uv run python -m switchboard.data.calibrate            # label, then report
     uv run python -m switchboard.data.calibrate --report   # report only
@@ -43,9 +46,9 @@ CHOICES = {"a": "A", "b": "B", "t": "tie"}
 # --- sampling ---
 
 
-def sample_rows(labels: pd.DataFrame, n: int, seed: int) -> pd.DataFrame:
-    """n train rows scored by the LLM judge, allocated to categories by their share."""
-    pool = labels[(labels["split"] == "train") & labels["source"].isin(JUDGED_SOURCES)]
+def sample_rows(rows: pd.DataFrame, n: int, seed: int) -> pd.DataFrame:
+    """n train rows the LLM judge scores, allocated to categories by their share."""
+    pool = rows[(rows["split"] == "train") & rows["source"].isin(JUDGED_SOURCES)]
     shares = pool["category"].value_counts(normalize=True).to_dict()
     quotas = source_quotas(min(n, len(pool)), shares)
     parts = [
@@ -179,17 +182,23 @@ def agreement_report(merged: pd.DataFrame) -> dict:
     }
 
 
-def write_report(labels: pd.DataFrame, path: Path | None = None) -> dict:
+def write_report(
+    labels: pd.DataFrame, path: Path | None = None, human_path: Path | None = None
+) -> dict:
     # Paths resolve at call time so tests and dry runs can point them elsewhere.
     path = path or REPORT_PATH
-    human = pd.DataFrame(load_human_labels().values())
+    human = pd.DataFrame(load_human_labels(human_path).values())
     if human.empty:
         raise SystemExit("no hand labels yet: run without --report first")
     merged = human.merge(labels[["id", "category", "small_ok"]], on="id", how="inner")
+    if merged.empty:
+        raise SystemExit("no hand labelled row has a judge label yet: wait for step 3")
     report = {
         "judge_model": settings().judge_model,
         "sources": list(JUDGED_SOURCES),
         "created": datetime.now(UTC).date().isoformat(),
+        # Hand labelled rows the judge could not score are left out of n.
+        "hand_labelled": int(len(human)),
         **agreement_report(merged),
     }
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -200,14 +209,15 @@ def write_report(labels: pd.DataFrame, path: Path | None = None) -> dict:
 # --- entry point ---
 
 
-def load_rows(labels_path: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
-    labels = pd.read_parquet(labels_path)
-    prompts = pd.read_parquet(DATA_DIR / "prompts.parquet")[["id", "prompt"]]
+def load_rows() -> pd.DataFrame:
+    """Every prompt with both answers. Needs no judge output."""
+    prompts = pd.read_parquet(DATA_DIR / "prompts.parquet")
     answers = pd.read_parquet(DATA_DIR / "answers.parquet")
-    wide = answers.pivot(index="id", columns="role", values="answer")
+    ok = answers[answers["error"].isna()]
+    wide = ok.pivot(index="id", columns="role", values="answer").dropna()
     wide.columns = [f"{c}_answer" for c in wide.columns]
-    rows = labels.merge(prompts, on="id").merge(wide, left_on="id", right_index=True)
-    return labels, rows
+    cols = ["id", "split", "source", "category", "prompt"]
+    return prompts[cols].merge(wide, left_on="id", right_index=True)
 
 
 def main() -> None:
@@ -223,11 +233,14 @@ def main() -> None:
     args = parser.parse_args()
 
     seed = settings().dataset.seed
-    labels, rows = load_rows(args.labels)
     if not args.report:
-        label_session(sample_rows(rows, args.n, seed), seed)
-    report = write_report(labels)
-    print(json.dumps({k: report[k] for k in ("n", "agreement", "cohen_kappa")}, indent=2))
+        label_session(sample_rows(load_rows(), args.n, seed), seed)
+    if not args.labels.exists():
+        print(f"{args.labels} does not exist yet: run --report after step 3 finishes")
+        return
+    report = write_report(pd.read_parquet(args.labels))
+    keys = ("hand_labelled", "n", "agreement", "cohen_kappa")
+    print(json.dumps({k: report[k] for k in keys}, indent=2))
     print(f"wrote {REPORT_PATH}")
 
 

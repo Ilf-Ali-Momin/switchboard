@@ -108,3 +108,28 @@ def test_agreement_report_math():
     assert r["per_category"]["b"] == {"n": 2, "agreement": 0.5}
     assert r["cohen_kappa"] == 0.5
     json.dumps(r)  # serializable
+
+
+def test_sample_does_not_need_judge_labels():
+    rows = make_rows().drop(columns="small_ok")
+    sample = cal.sample_rows(rows, n=30, seed=42)
+    assert len(sample) == 30
+
+
+def test_report_compares_only_rows_the_judge_scored(tmp_path):
+    human_path = tmp_path / "human.jsonl"
+    for row_id, ok in [("x", True), ("y", False), ("z", True)]:
+        cal.append_human_label({"id": row_id, "human_small_ok": ok}, human_path)
+    labels = pd.DataFrame({"id": ["x", "y"], "category": ["c", "c"], "small_ok": [True, True]})
+    r = cal.write_report(labels, tmp_path / "report.json", human_path)
+    assert r["hand_labelled"] == 3
+    assert r["n"] == 2
+    assert r["agreement"] == 0.5
+
+
+def test_report_waits_for_judge_labels(tmp_path):
+    human_path = tmp_path / "human.jsonl"
+    cal.append_human_label({"id": "x", "human_small_ok": True}, human_path)
+    labels = pd.DataFrame({"id": ["other"], "category": ["c"], "small_ok": [True]})
+    with pytest.raises(SystemExit, match="wait for step 3"):
+        cal.write_report(labels, tmp_path / "report.json", human_path)
