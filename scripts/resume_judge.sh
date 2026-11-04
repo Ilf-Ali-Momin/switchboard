@@ -23,7 +23,7 @@ if pgrep -f "switchboard.data.judge" > /dev/null; then
 fi
 
 if [ -f "$LOG" ]; then
-    if grep -qE "0 pending on daily quota, 0 other errors" "$LOG"; then
+    if grep -qE ", 0 pending on daily quota, 0 other errors" "$LOG"; then
         note "skip: step 3 complete"
         exit 0
     fi
