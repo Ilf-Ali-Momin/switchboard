@@ -1,7 +1,9 @@
 #!/bin/bash
 # Resume the step 3 judge run on the Groq free tier.
-# Run by launchd every 6 hours (see scripts/com.switchboard.judge-resume.plist; replace
+# Run by launchd every hour (see scripts/com.switchboard.judge-resume.plist; replace
 # __REPO__ in it with the absolute repo path and copy it to ~/Library/LaunchAgents).
+# Starts a run only when the last one started at least MIN_GAP_S ago, so a run missed while
+# the Mac slept is made up within an hour of waking.
 # Skips when a run is live, when the run is complete, or when the last run hit a real error.
 # Judgments still invalid after the retry are final (the cache returns the same reply), so
 # the run is complete when nothing is pending on the daily quota and there are no other errors.
@@ -12,10 +14,20 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UV="$(command -v uv || echo "$HOME/.local/bin/uv")"
 LOG="$ROOT/data/judge_full.log"
 RESUME_LOG="$ROOT/data/judge_resume.log"
+MIN_GAP_S=21600
 
 note() { echo "$(date '+%Y-%m-%d %H:%M:%S') $*" >> "$RESUME_LOG"; }
 
 cd "$ROOT" || exit 1
+
+# Too soon after the last start: exit without a log line, since this happens every hour.
+last_start=$(grep " start: " "$RESUME_LOG" 2>/dev/null | tail -1 | cut -c1-19)
+if [ -n "$last_start" ]; then
+    started=$(date -j -f "%Y-%m-%d %H:%M:%S" "$last_start" +%s 2>/dev/null || echo 0)
+    if [ $(( $(date +%s) - started )) -lt "$MIN_GAP_S" ]; then
+        exit 0
+    fi
+fi
 
 if pgrep -f "switchboard.data.judge" > /dev/null; then
     note "skip: a judge run is live ($(grep 'judgments done' "$LOG" | tail -1))"
