@@ -1,0 +1,34 @@
+{
+  "judge_model": "qwen/qwen3.8-27b",
+  "sources": [
+    "dolly",
+    "oasst1"
+  ],
+  "created": "2026-11-15",
+  "hand_labelled": 100,
+  "n": 100,
+  "agreement": 0.8,
+  "cohen_kappa": 0.523,
+  "human_small_ok_share": 0.65,
+  "judge_small_ok_share": 0.77,
+  "confusion": {
+    "both_ok": 61,
+    "both_not_ok": 19,
+    "judge_ok_human_not": 16,
+    "human_ok_judge_not": 4
+  },
+  "per_category": {
+    "factual_qa": {
+      "n": 36,
+      "agreement": 0.806
+    },
+    "general_instruction": {
+      "n": 55,
+      "agreement": 0.782
+    },
+    "summarization": {
+      "n": 9,
+      "agreement": 0.889
+    }
+  }
+}

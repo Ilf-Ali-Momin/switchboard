@@ -1,0 +1,1061 @@
+{
+  "meta": {
+    "created": "2026-11-15",
+    "small_model": "openai/gpt-oss-20b",
+    "large_model": "openai/gpt-oss-120b",
+    "judge_model": "qwen/qwen3.8-27b",
+    "encoder_model": "answerdotai/ModernBERT-base",
+    "prices_per_million_tokens": {
+      "checked_on": "2026-10-16",
+      "small": {
+        "input": 0.075,
+        "output": 0.3
+      },
+      "large": {
+        "input": 0.15,
+        "output": 0.6
+      }
+    },
+    "label_margin": 0.0
+  },
+  "headline": "At threshold 0.79, Switchboard sends 80% of prompts to the small model and keeps 98.0% of the large model's quality, cutting cost by 30%.",
+  "router_beats_random": true,
+  "operating_point": {
+    "threshold": 0.79,
+    "picked_on": "val",
+    "target_quality_retained": 0.98,
+    "val": {
+      "share_small": 0.7726,
+      "mean_quality": 4.214,
+      "quality_retained": 0.9828,
+      "cost_usd": 0.1408,
+      "cost_relative": 0.698,
+      "cost_reduction": 0.302
+    },
+    "test": {
+      "share_small": 0.7967,
+      "mean_quality": 4.3,
+      "quality_retained": 0.9802,
+      "cost_usd": 0.1285,
+      "cost_relative": 0.6979,
+      "cost_reduction": 0.3021
+    }
+  },
+  "test_baselines_at_same_share": {
+    "random": {
+      "share_small": 0.7967,
+      "mean_quality": 4.2308,
+      "quality_retained": 0.9645,
+      "cost_usd": 0.1185,
+      "cost_relative": 0.6439,
+      "cost_reduction": 0.3561,
+      "mean_quality_std": 0.0217
+    },
+    "length_heuristic": {
+      "share_small": 0.7967,
+      "mean_quality": 4.19,
+      "quality_retained": 0.9552,
+      "cost_usd": 0.1161,
+      "cost_relative": 0.631,
+      "cost_reduction": 0.369
+    }
+  },
+  "test_baselines": {
+    "always_small": {
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    "always_large": {
+      "share_small": 0.0,
+      "mean_quality": 4.3867,
+      "quality_retained": 1.0,
+      "cost_usd": 0.1841,
+      "cost_relative": 1.0,
+      "cost_reduction": 0.0
+    }
+  },
+  "router_vs_random_on_test": {
+    "router_mean_quality": 4.3,
+    "random_mean_quality": 4.2308,
+    "random_mean_quality_std": 0.0217,
+    "quality_gain_over_random": 0.0692,
+    "seeds_beaten": "20/20",
+    "beats_random": true
+  },
+  "test_router_roc_auc": 0.7293530464262171,
+  "test_per_category": {
+    "coding": {
+      "n": 60,
+      "share_small": 1.0,
+      "mean_quality": 4.533,
+      "quality_retained": 0.986,
+      "cost_usd": 0.015,
+      "cost_relative": 0.441,
+      "cost_reduction": 0.559
+    },
+    "factual_qa": {
+      "n": 63,
+      "share_small": 0.73,
+      "mean_quality": 4.397,
+      "quality_retained": 0.972,
+      "cost_usd": 0.03,
+      "cost_relative": 0.694,
+      "cost_reduction": 0.306
+    },
+    "general_instruction": {
+      "n": 96,
+      "share_small": 0.542,
+      "mean_quality": 3.823,
+      "quality_retained": 0.968,
+      "cost_usd": 0.071,
+      "cost_relative": 0.814,
+      "cost_reduction": 0.186
+    },
+    "math": {
+      "n": 60,
+      "share_small": 1.0,
+      "mean_quality": 4.667,
+      "quality_retained": 1.0,
+      "cost_usd": 0.008,
+      "cost_relative": 0.659,
+      "cost_reduction": 0.341
+    },
+    "summarization": {
+      "n": 21,
+      "share_small": 1.0,
+      "mean_quality": 4.476,
+      "quality_retained": 0.979,
+      "cost_usd": 0.005,
+      "cost_relative": 0.618,
+      "cost_reduction": 0.382
+    }
+  },
+  "n": {
+    "val": 299,
+    "test": 300
+  },
+  "test_curve": [
+    {
+      "threshold": 0.0,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.01,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.02,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.03,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.04,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.05,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.06,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.07,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.08,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.09,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.1,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.11,
+      "share_small": 1.0,
+      "mean_quality": 4.1933,
+      "quality_retained": 0.9559,
+      "cost_usd": 0.1026,
+      "cost_relative": 0.5572,
+      "cost_reduction": 0.4428
+    },
+    {
+      "threshold": 0.12,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.13,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.14,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.15,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.16,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.17,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.18,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.19,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.2,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.21,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.22,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.23,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.24,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.25,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.26,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.27,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.28,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.29,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.3,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.31,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.32,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.33,
+      "share_small": 0.9967,
+      "mean_quality": 4.2067,
+      "quality_retained": 0.959,
+      "cost_usd": 0.1015,
+      "cost_relative": 0.5515,
+      "cost_reduction": 0.4485
+    },
+    {
+      "threshold": 0.34,
+      "share_small": 0.9933,
+      "mean_quality": 4.21,
+      "quality_retained": 0.9597,
+      "cost_usd": 0.1013,
+      "cost_relative": 0.5503,
+      "cost_reduction": 0.4497
+    },
+    {
+      "threshold": 0.35,
+      "share_small": 0.9933,
+      "mean_quality": 4.21,
+      "quality_retained": 0.9597,
+      "cost_usd": 0.1013,
+      "cost_relative": 0.5503,
+      "cost_reduction": 0.4497
+    },
+    {
+      "threshold": 0.36,
+      "share_small": 0.9933,
+      "mean_quality": 4.21,
+      "quality_retained": 0.9597,
+      "cost_usd": 0.1013,
+      "cost_relative": 0.5503,
+      "cost_reduction": 0.4497
+    },
+    {
+      "threshold": 0.37,
+      "share_small": 0.9933,
+      "mean_quality": 4.21,
+      "quality_retained": 0.9597,
+      "cost_usd": 0.1013,
+      "cost_relative": 0.5503,
+      "cost_reduction": 0.4497
+    },
+    {
+      "threshold": 0.38,
+      "share_small": 0.9933,
+      "mean_quality": 4.21,
+      "quality_retained": 0.9597,
+      "cost_usd": 0.1013,
+      "cost_relative": 0.5503,
+      "cost_reduction": 0.4497
+    },
+    {
+      "threshold": 0.39,
+      "share_small": 0.9933,
+      "mean_quality": 4.21,
+      "quality_retained": 0.9597,
+      "cost_usd": 0.1013,
+      "cost_relative": 0.5503,
+      "cost_reduction": 0.4497
+    },
+    {
+      "threshold": 0.4,
+      "share_small": 0.99,
+      "mean_quality": 4.2133,
+      "quality_retained": 0.9605,
+      "cost_usd": 0.1017,
+      "cost_relative": 0.5525,
+      "cost_reduction": 0.4475
+    },
+    {
+      "threshold": 0.41,
+      "share_small": 0.99,
+      "mean_quality": 4.2133,
+      "quality_retained": 0.9605,
+      "cost_usd": 0.1017,
+      "cost_relative": 0.5525,
+      "cost_reduction": 0.4475
+    },
+    {
+      "threshold": 0.42,
+      "share_small": 0.9867,
+      "mean_quality": 4.21,
+      "quality_retained": 0.9597,
+      "cost_usd": 0.1023,
+      "cost_relative": 0.556,
+      "cost_reduction": 0.444
+    },
+    {
+      "threshold": 0.43,
+      "share_small": 0.9833,
+      "mean_quality": 4.2233,
+      "quality_retained": 0.9628,
+      "cost_usd": 0.1033,
+      "cost_relative": 0.561,
+      "cost_reduction": 0.439
+    },
+    {
+      "threshold": 0.44,
+      "share_small": 0.9833,
+      "mean_quality": 4.2233,
+      "quality_retained": 0.9628,
+      "cost_usd": 0.1033,
+      "cost_relative": 0.561,
+      "cost_reduction": 0.439
+    },
+    {
+      "threshold": 0.45,
+      "share_small": 0.98,
+      "mean_quality": 4.2233,
+      "quality_retained": 0.9628,
+      "cost_usd": 0.1045,
+      "cost_relative": 0.5677,
+      "cost_reduction": 0.4323
+    },
+    {
+      "threshold": 0.46,
+      "share_small": 0.98,
+      "mean_quality": 4.2233,
+      "quality_retained": 0.9628,
+      "cost_usd": 0.1045,
+      "cost_relative": 0.5677,
+      "cost_reduction": 0.4323
+    },
+    {
+      "threshold": 0.47,
+      "share_small": 0.9767,
+      "mean_quality": 4.2167,
+      "quality_retained": 0.9612,
+      "cost_usd": 0.1055,
+      "cost_relative": 0.5733,
+      "cost_reduction": 0.4267
+    },
+    {
+      "threshold": 0.48,
+      "share_small": 0.9767,
+      "mean_quality": 4.2167,
+      "quality_retained": 0.9612,
+      "cost_usd": 0.1055,
+      "cost_relative": 0.5733,
+      "cost_reduction": 0.4267
+    },
+    {
+      "threshold": 0.49,
+      "share_small": 0.97,
+      "mean_quality": 4.24,
+      "quality_retained": 0.9666,
+      "cost_usd": 0.1051,
+      "cost_relative": 0.5712,
+      "cost_reduction": 0.4288
+    },
+    {
+      "threshold": 0.5,
+      "share_small": 0.9667,
+      "mean_quality": 4.2433,
+      "quality_retained": 0.9673,
+      "cost_usd": 0.1058,
+      "cost_relative": 0.5747,
+      "cost_reduction": 0.4253
+    },
+    {
+      "threshold": 0.51,
+      "share_small": 0.9633,
+      "mean_quality": 4.2433,
+      "quality_retained": 0.9673,
+      "cost_usd": 0.1058,
+      "cost_relative": 0.5749,
+      "cost_reduction": 0.4251
+    },
+    {
+      "threshold": 0.52,
+      "share_small": 0.96,
+      "mean_quality": 4.2533,
+      "quality_retained": 0.9696,
+      "cost_usd": 0.107,
+      "cost_relative": 0.5816,
+      "cost_reduction": 0.4184
+    },
+    {
+      "threshold": 0.53,
+      "share_small": 0.9567,
+      "mean_quality": 4.2533,
+      "quality_retained": 0.9696,
+      "cost_usd": 0.1072,
+      "cost_relative": 0.5826,
+      "cost_reduction": 0.4174
+    },
+    {
+      "threshold": 0.54,
+      "share_small": 0.9533,
+      "mean_quality": 4.2567,
+      "quality_retained": 0.9704,
+      "cost_usd": 0.1072,
+      "cost_relative": 0.5827,
+      "cost_reduction": 0.4173
+    },
+    {
+      "threshold": 0.55,
+      "share_small": 0.9467,
+      "mean_quality": 4.2567,
+      "quality_retained": 0.9704,
+      "cost_usd": 0.1091,
+      "cost_relative": 0.5927,
+      "cost_reduction": 0.4073
+    },
+    {
+      "threshold": 0.56,
+      "share_small": 0.9433,
+      "mean_quality": 4.2433,
+      "quality_retained": 0.9673,
+      "cost_usd": 0.1101,
+      "cost_relative": 0.5979,
+      "cost_reduction": 0.4021
+    },
+    {
+      "threshold": 0.57,
+      "share_small": 0.9433,
+      "mean_quality": 4.2433,
+      "quality_retained": 0.9673,
+      "cost_usd": 0.1101,
+      "cost_relative": 0.5979,
+      "cost_reduction": 0.4021
+    },
+    {
+      "threshold": 0.58,
+      "share_small": 0.94,
+      "mean_quality": 4.2467,
+      "quality_retained": 0.9681,
+      "cost_usd": 0.1105,
+      "cost_relative": 0.6003,
+      "cost_reduction": 0.3997
+    },
+    {
+      "threshold": 0.59,
+      "share_small": 0.94,
+      "mean_quality": 4.2467,
+      "quality_retained": 0.9681,
+      "cost_usd": 0.1105,
+      "cost_relative": 0.6003,
+      "cost_reduction": 0.3997
+    },
+    {
+      "threshold": 0.6,
+      "share_small": 0.93,
+      "mean_quality": 4.2467,
+      "quality_retained": 0.9681,
+      "cost_usd": 0.1106,
+      "cost_relative": 0.6011,
+      "cost_reduction": 0.3989
+    },
+    {
+      "threshold": 0.61,
+      "share_small": 0.9267,
+      "mean_quality": 4.25,
+      "quality_retained": 0.9688,
+      "cost_usd": 0.1106,
+      "cost_relative": 0.6009,
+      "cost_reduction": 0.3991
+    },
+    {
+      "threshold": 0.62,
+      "share_small": 0.92,
+      "mean_quality": 4.25,
+      "quality_retained": 0.9688,
+      "cost_usd": 0.1109,
+      "cost_relative": 0.6026,
+      "cost_reduction": 0.3974
+    },
+    {
+      "threshold": 0.63,
+      "share_small": 0.9167,
+      "mean_quality": 4.25,
+      "quality_retained": 0.9688,
+      "cost_usd": 0.1115,
+      "cost_relative": 0.6056,
+      "cost_reduction": 0.3944
+    },
+    {
+      "threshold": 0.64,
+      "share_small": 0.9167,
+      "mean_quality": 4.25,
+      "quality_retained": 0.9688,
+      "cost_usd": 0.1115,
+      "cost_relative": 0.6056,
+      "cost_reduction": 0.3944
+    },
+    {
+      "threshold": 0.65,
+      "share_small": 0.91,
+      "mean_quality": 4.25,
+      "quality_retained": 0.9688,
+      "cost_usd": 0.1124,
+      "cost_relative": 0.6108,
+      "cost_reduction": 0.3892
+    },
+    {
+      "threshold": 0.66,
+      "share_small": 0.9067,
+      "mean_quality": 4.25,
+      "quality_retained": 0.9688,
+      "cost_usd": 0.1126,
+      "cost_relative": 0.6117,
+      "cost_reduction": 0.3883
+    },
+    {
+      "threshold": 0.67,
+      "share_small": 0.8933,
+      "mean_quality": 4.2633,
+      "quality_retained": 0.9719,
+      "cost_usd": 0.114,
+      "cost_relative": 0.6195,
+      "cost_reduction": 0.3805
+    },
+    {
+      "threshold": 0.68,
+      "share_small": 0.8933,
+      "mean_quality": 4.2633,
+      "quality_retained": 0.9719,
+      "cost_usd": 0.114,
+      "cost_relative": 0.6195,
+      "cost_reduction": 0.3805
+    },
+    {
+      "threshold": 0.69,
+      "share_small": 0.8933,
+      "mean_quality": 4.2633,
+      "quality_retained": 0.9719,
+      "cost_usd": 0.114,
+      "cost_relative": 0.6195,
+      "cost_reduction": 0.3805
+    },
+    {
+      "threshold": 0.7,
+      "share_small": 0.8933,
+      "mean_quality": 4.2633,
+      "quality_retained": 0.9719,
+      "cost_usd": 0.114,
+      "cost_relative": 0.6195,
+      "cost_reduction": 0.3805
+    },
+    {
+      "threshold": 0.71,
+      "share_small": 0.88,
+      "mean_quality": 4.27,
+      "quality_retained": 0.9734,
+      "cost_usd": 0.1157,
+      "cost_relative": 0.6288,
+      "cost_reduction": 0.3712
+    },
+    {
+      "threshold": 0.72,
+      "share_small": 0.8733,
+      "mean_quality": 4.28,
+      "quality_retained": 0.9757,
+      "cost_usd": 0.117,
+      "cost_relative": 0.6355,
+      "cost_reduction": 0.3645
+    },
+    {
+      "threshold": 0.73,
+      "share_small": 0.86,
+      "mean_quality": 4.2733,
+      "quality_retained": 0.9742,
+      "cost_usd": 0.1197,
+      "cost_relative": 0.6505,
+      "cost_reduction": 0.3495
+    },
+    {
+      "threshold": 0.74,
+      "share_small": 0.8567,
+      "mean_quality": 4.2733,
+      "quality_retained": 0.9742,
+      "cost_usd": 0.1194,
+      "cost_relative": 0.6489,
+      "cost_reduction": 0.3511
+    },
+    {
+      "threshold": 0.75,
+      "share_small": 0.85,
+      "mean_quality": 4.2733,
+      "quality_retained": 0.9742,
+      "cost_usd": 0.121,
+      "cost_relative": 0.6572,
+      "cost_reduction": 0.3428
+    },
+    {
+      "threshold": 0.76,
+      "share_small": 0.8367,
+      "mean_quality": 4.2833,
+      "quality_retained": 0.9764,
+      "cost_usd": 0.1222,
+      "cost_relative": 0.664,
+      "cost_reduction": 0.336
+    },
+    {
+      "threshold": 0.77,
+      "share_small": 0.8267,
+      "mean_quality": 4.2967,
+      "quality_retained": 0.9795,
+      "cost_usd": 0.1226,
+      "cost_relative": 0.6663,
+      "cost_reduction": 0.3337
+    },
+    {
+      "threshold": 0.78,
+      "share_small": 0.8167,
+      "mean_quality": 4.2967,
+      "quality_retained": 0.9795,
+      "cost_usd": 0.1254,
+      "cost_relative": 0.6811,
+      "cost_reduction": 0.3189
+    },
+    {
+      "threshold": 0.79,
+      "share_small": 0.7967,
+      "mean_quality": 4.3,
+      "quality_retained": 0.9802,
+      "cost_usd": 0.1285,
+      "cost_relative": 0.6979,
+      "cost_reduction": 0.3021
+    },
+    {
+      "threshold": 0.8,
+      "share_small": 0.7867,
+      "mean_quality": 4.3067,
+      "quality_retained": 0.9818,
+      "cost_usd": 0.1286,
+      "cost_relative": 0.6987,
+      "cost_reduction": 0.3013
+    },
+    {
+      "threshold": 0.81,
+      "share_small": 0.77,
+      "mean_quality": 4.3067,
+      "quality_retained": 0.9818,
+      "cost_usd": 0.1311,
+      "cost_relative": 0.7121,
+      "cost_reduction": 0.2879
+    },
+    {
+      "threshold": 0.82,
+      "share_small": 0.76,
+      "mean_quality": 4.3067,
+      "quality_retained": 0.9818,
+      "cost_usd": 0.1318,
+      "cost_relative": 0.716,
+      "cost_reduction": 0.284
+    },
+    {
+      "threshold": 0.83,
+      "share_small": 0.7533,
+      "mean_quality": 4.3067,
+      "quality_retained": 0.9818,
+      "cost_usd": 0.1314,
+      "cost_relative": 0.714,
+      "cost_reduction": 0.286
+    },
+    {
+      "threshold": 0.84,
+      "share_small": 0.7367,
+      "mean_quality": 4.3067,
+      "quality_retained": 0.9818,
+      "cost_usd": 0.135,
+      "cost_relative": 0.7334,
+      "cost_reduction": 0.2666
+    },
+    {
+      "threshold": 0.85,
+      "share_small": 0.7367,
+      "mean_quality": 4.3067,
+      "quality_retained": 0.9818,
+      "cost_usd": 0.135,
+      "cost_relative": 0.7334,
+      "cost_reduction": 0.2666
+    },
+    {
+      "threshold": 0.86,
+      "share_small": 0.72,
+      "mean_quality": 4.3133,
+      "quality_retained": 0.9833,
+      "cost_usd": 0.1373,
+      "cost_relative": 0.7461,
+      "cost_reduction": 0.2539
+    },
+    {
+      "threshold": 0.87,
+      "share_small": 0.6967,
+      "mean_quality": 4.3267,
+      "quality_retained": 0.9863,
+      "cost_usd": 0.1415,
+      "cost_relative": 0.7686,
+      "cost_reduction": 0.2314
+    },
+    {
+      "threshold": 0.88,
+      "share_small": 0.6667,
+      "mean_quality": 4.3233,
+      "quality_retained": 0.9856,
+      "cost_usd": 0.144,
+      "cost_relative": 0.7825,
+      "cost_reduction": 0.2175
+    },
+    {
+      "threshold": 0.89,
+      "share_small": 0.66,
+      "mean_quality": 4.3233,
+      "quality_retained": 0.9856,
+      "cost_usd": 0.1447,
+      "cost_relative": 0.7863,
+      "cost_reduction": 0.2137
+    },
+    {
+      "threshold": 0.9,
+      "share_small": 0.6367,
+      "mean_quality": 4.3233,
+      "quality_retained": 0.9856,
+      "cost_usd": 0.1469,
+      "cost_relative": 0.7981,
+      "cost_reduction": 0.2019
+    },
+    {
+      "threshold": 0.91,
+      "share_small": 0.6,
+      "mean_quality": 4.32,
+      "quality_retained": 0.9848,
+      "cost_usd": 0.1483,
+      "cost_relative": 0.8056,
+      "cost_reduction": 0.1944
+    },
+    {
+      "threshold": 0.92,
+      "share_small": 0.5633,
+      "mean_quality": 4.3467,
+      "quality_retained": 0.9909,
+      "cost_usd": 0.1534,
+      "cost_relative": 0.8335,
+      "cost_reduction": 0.1665
+    },
+    {
+      "threshold": 0.93,
+      "share_small": 0.52,
+      "mean_quality": 4.36,
+      "quality_retained": 0.9939,
+      "cost_usd": 0.156,
+      "cost_relative": 0.8474,
+      "cost_reduction": 0.1526
+    },
+    {
+      "threshold": 0.94,
+      "share_small": 0.4867,
+      "mean_quality": 4.35,
+      "quality_retained": 0.9916,
+      "cost_usd": 0.1604,
+      "cost_relative": 0.8714,
+      "cost_reduction": 0.1286
+    },
+    {
+      "threshold": 0.95,
+      "share_small": 0.45,
+      "mean_quality": 4.3567,
+      "quality_retained": 0.9932,
+      "cost_usd": 0.1623,
+      "cost_relative": 0.8816,
+      "cost_reduction": 0.1184
+    },
+    {
+      "threshold": 0.96,
+      "share_small": 0.4067,
+      "mean_quality": 4.3567,
+      "quality_retained": 0.9932,
+      "cost_usd": 0.1653,
+      "cost_relative": 0.898,
+      "cost_reduction": 0.102
+    },
+    {
+      "threshold": 0.97,
+      "share_small": 0.3567,
+      "mean_quality": 4.3433,
+      "quality_retained": 0.9901,
+      "cost_usd": 0.1687,
+      "cost_relative": 0.9164,
+      "cost_reduction": 0.0836
+    },
+    {
+      "threshold": 0.98,
+      "share_small": 0.2933,
+      "mean_quality": 4.3333,
+      "quality_retained": 0.9878,
+      "cost_usd": 0.1715,
+      "cost_relative": 0.9315,
+      "cost_reduction": 0.0685
+    },
+    {
+      "threshold": 0.99,
+      "share_small": 0.2133,
+      "mean_quality": 4.3467,
+      "quality_retained": 0.9909,
+      "cost_usd": 0.1748,
+      "cost_relative": 0.9499,
+      "cost_reduction": 0.0501
+    },
+    {
+      "threshold": 1.0,
+      "share_small": 0.0,
+      "mean_quality": 4.3867,
+      "quality_retained": 1.0,
+      "cost_usd": 0.1841,
+      "cost_relative": 1.0,
+      "cost_reduction": 0.0
+    },
+    {
+      "threshold": 1.0,
+      "share_small": 0.0,
+      "mean_quality": 4.3867,
+      "quality_retained": 1.0,
+      "cost_usd": 0.1841,
+      "cost_relative": 1.0,
+      "cost_reduction": 0.0
+    }
+  ]
+}

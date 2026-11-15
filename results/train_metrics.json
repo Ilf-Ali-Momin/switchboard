@@ -1,0 +1,33 @@
+{
+  "encoder_model": "answerdotai/ModernBERT-base",
+  "created": "2026-11-15",
+  "seed": 42,
+  "train": {
+    "n": 1398,
+    "small_ok_share": 0.853
+  },
+  "val": {
+    "n": 299,
+    "small_ok_share": 0.826
+  },
+  "best_learning_rate": 2e-05,
+  "val_roc_auc": 0.7735,
+  "val_accuracy": 0.8194,
+  "runs": [
+    {
+      "learning_rate": 2e-05,
+      "val_roc_auc": 0.7735,
+      "val_accuracy": 0.8194
+    },
+    {
+      "learning_rate": 3e-05,
+      "val_roc_auc": 0.7496,
+      "val_accuracy": 0.8194
+    },
+    {
+      "learning_rate": 5e-05,
+      "val_roc_auc": 0.7177,
+      "val_accuracy": 0.8127
+    }
+  ]
+}

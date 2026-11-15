@@ -21,7 +21,7 @@ SERIES = {
     "length": ("#1baf7a", ":", "Prompt length heuristic"),
 }
 # Where each direct label sits, as a share of the x range, and its offset in points.
-LABEL_SPOT = {"router": (0.75, (0, -14)), "random": (0.55, (0, 9)), "length": (0.4, (0, 6))}
+LABEL_SPOT = {"router": (0.75, (0, -14)), "random": (0.35, (0, -14)), "length": (0.4, (0, 6))}
 
 
 def _style(ax: plt.Axes) -> None:
