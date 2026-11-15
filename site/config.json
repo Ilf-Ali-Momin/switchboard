@@ -1,0 +1,10 @@
+{
+  "headline": "At threshold 0.79, Switchboard sends 80% of prompts to the small model and keeps 98.0% of the large model's quality, cutting cost by 30%.",
+  "model_repo": "Ilf-Ali/switchboard-router",
+  "dataset_repo": "Ilf-Ali/switchboard-routing",
+  "github_url": "https://github.com/Ilf-Ali-Momin/switchboard",
+  "small_model": "openai/gpt-oss-20b",
+  "large_model": "openai/gpt-oss-120b",
+  "threshold": 0.79,
+  "max_prompt_tokens": 512
+}

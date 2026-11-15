@@ -27,6 +27,7 @@ from switchboard.eval import readme
 
 DATA_DIR = ROOT / "data"
 HUB_DIR = DATA_DIR / "hub"
+SITE_DIR = ROOT / "site"  # the same static demo, committed for Vercel
 DOCS_DIR = ROOT / "docs"
 CHART = ROOT / "results" / "cost_vs_quality.png"
 SPLIT_NAMES = {"train": "train", "val": "validation", "test": "test"}
@@ -175,7 +176,16 @@ def build_all(user: str) -> dict[str, Path]:
     build_model_dir(dirs["model"])
     render_card("space", vals, dirs["space"])
     build_space_dir(dirs["space"], vals, rows)
+    if user != "HF_USERNAME":
+        write_site(dirs["space"])
     return dirs
+
+
+def write_site(space_dir: Path) -> None:
+    """Copy the static Space, without its Hub card, to site/ for hosting outside the Hub."""
+    if SITE_DIR.exists():
+        shutil.rmtree(SITE_DIR)
+    shutil.copytree(space_dir, SITE_DIR, ignore=shutil.ignore_patterns("README.md", "models"))
 
 
 # --- push ---

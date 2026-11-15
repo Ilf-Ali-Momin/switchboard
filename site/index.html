@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Switchboard router</title>
+<style>
+  :root {
+    --bg: #fcfcfb; --surface: #ffffff; --text: #0b0b0b; --muted: #52514e; --border: #e4e3df;
+    --accent: #2a78d6; --small: #1b8a5a; --large: #c4501f; --code: #f3f2ef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #141413; --surface: #1c1c1b; --text: #f2f1ee; --muted: #a9a7a1; --border: #33322f;
+      --accent: #5a9be6; --small: #3cc488; --large: #ef7a4a; --code: #262624;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #141413; --surface: #1c1c1b; --text: #f2f1ee; --muted: #a9a7a1; --border: #33322f;
+    --accent: #5a9be6; --small: #3cc488; --large: #ef7a4a; --code: #262624;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 1.9rem; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .lede { color: var(--muted); margin: 0 0 20px; }
+  .headline { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; margin: 0 0 28px;
+    font-weight: 600; }
+  nav { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px;
+    overflow-x: auto; }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--muted);
+    padding: 8px 12px; font: inherit; cursor: pointer; white-space: nowrap; }
+  nav button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+  section[hidden] { display: none; }
+  textarea, select { width: 100%; font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  textarea { min-height: 110px; resize: vertical; }
+  .row { display: flex; gap: 12px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+  .primary { background: var(--accent); color: #fff; border: 0; border-radius: 8px;
+    padding: 10px 18px; font: inherit; font-weight: 600; cursor: pointer; }
+  .primary:disabled { opacity: 0.5; cursor: wait; }
+  .status { color: var(--muted); font-size: 0.9rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; margin-top: 18px; }
+  .verdict { font-size: 1.25rem; font-weight: 700; margin: 0 0 10px; }
+  .verdict.small { color: var(--small); } .verdict.large { color: var(--large); }
+  .meter { position: relative; height: 12px; background: var(--code); border-radius: 6px;
+    overflow: visible; margin: 8px 0 22px; }
+  .meter .fill { height: 100%; border-radius: 6px; background: var(--accent); width: 0;
+    transition: width .3s; }
+  .meter .tick { position: absolute; top: -4px; width: 2px; height: 20px; background: var(--text); }
+  .meter .tick span { position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+    font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+  .muted { color: var(--muted); font-size: 0.92rem; }
+  .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+  @media (max-width: 640px) { .answers { grid-template-columns: 1fr; } }
+  .answers h3 { font-size: 0.95rem; margin: 0 0 6px; }
+  .answers pre { white-space: pre-wrap; word-break: break-word; background: var(--code);
+    border-radius: 8px; padding: 10px; margin: 0; max-height: 360px; overflow: auto;
+    font: 0.85rem/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .prompt-text { white-space: pre-wrap; background: var(--code); border-radius: 8px; padding: 10px;
+    margin: 0 0 12px; }
+  img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border);
+    background: #fcfcfb; }
+  a { color: var(--accent); }
+  footer { margin-top: 40px; color: var(--muted); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Switchboard</h1>
+  <p class="lede">A learned LLM router. A small classifier reads a prompt and predicts whether a
+    cheap small model's answer will be good enough, or the request needs the large model. The
+    classifier runs in your browser; this page calls no LLM.</p>
+  <p class="headline" id="headline"></p>
+
+  <nav role="tablist">
+    <button role="tab" aria-selected="true" data-tab="try">Try a prompt</button>
+    <button role="tab" aria-selected="false" data-tab="examples">Test set examples</button>
+    <button role="tab" aria-selected="false" data-tab="chart">Cost vs quality</button>
+  </nav>
+
+  <section id="try">
+    <label for="prompt" class="muted">Prompt</label>
+    <textarea id="prompt" placeholder="Ask anything, e.g. Write a short poem about autumn."></textarea>
+    <div class="row">
+      <button class="primary" id="go" disabled>Route it</button>
+      <span class="status" id="status">Loading the router (about 300 MB, cached after the first visit)…</span>
+    </div>
+    <div class="card" id="result" hidden></div>
+  </section>
+
+  <section id="examples" hidden>
+    <label for="pick" class="muted">Pick a prompt from the held out test split</label>
+    <select id="pick"></select>
+    <div class="card" id="example"></div>
+  </section>
+
+  <section id="chart" hidden>
+    <img src="cost_vs_quality.png" alt="Cost vs quality on the test split: the router curve sits above random routing and the prompt length heuristic">
+  </section>
+
+  <footer id="footer"></footer>
+</main>
+
+<script type="module">
+import { AutoTokenizer, AutoModelForSequenceClassification, env }
+  from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.3.2";
+
+const $ = (id) => document.getElementById(id);
+const cfg = await (await fetch("config.json")).json();
+const examples = await (await fetch("examples.json")).json();
+
+$("headline").textContent = cfg.headline;
+$("footer").innerHTML =
+  `Model <a href="https://huggingface.co/${cfg.model_repo}">${cfg.model_repo}</a> · ` +
+  `Data <a href="https://huggingface.co/datasets/${cfg.dataset_repo}">${cfg.dataset_repo}</a> · ` +
+  `Code <a href="${cfg.github_url}">GitHub</a>`;
+
+// Tabs
+document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach((x) => x.setAttribute("aria-selected", x === b));
+  document.querySelectorAll("main section").forEach((s) => { s.hidden = s.id !== b.dataset.tab; });
+}));
+
+// Local testing: ?local serves the model from ./models/ instead of the Hub.
+if (new URLSearchParams(location.search).has("local")) {
+  env.allowRemoteModels = false;
+  env.allowLocalModels = true;
+  env.localModelPath = new URL("models/", location.href).href;
+}
+
+let tokenizer, model, smallIndex;
+async function load() {
+  tokenizer = await AutoTokenizer.from_pretrained(cfg.model_repo);
+  model = await AutoModelForSequenceClassification.from_pretrained(cfg.model_repo, { dtype: "fp16" });
+  smallIndex = Number(model.config.label2id?.small_ok ?? 1);
+}
+
+async function score(text) {
+  const inputs = tokenizer(text, { truncation: true, max_length: cfg.max_prompt_tokens });
+  const { logits } = await model(inputs);
+  const z = Array.from(logits.data, Number);
+  const m = Math.max(...z);
+  const e = z.map((v) => Math.exp(v - m));
+  return e[smallIndex] / e.reduce((a, b) => a + b, 0);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function verdictHtml(p) {
+  const small = p >= cfg.threshold;
+  return `<p class="verdict ${small ? "small" : "large"}">Route to the ${small ? "small" : "large"} model</p>
+    <div class="meter" aria-hidden="true">
+      <div class="fill" style="width:${(100 * p).toFixed(1)}%"></div>
+      <div class="tick" style="left:${(100 * cfg.threshold).toFixed(1)}%"><span>threshold ${cfg.threshold.toFixed(2)}</span></div>
+    </div>
+    <p class="muted">Score ${p.toFixed(3)}: the probability that the small model's answer is good
+    enough. At or above the threshold the prompt goes to <code>${cfg.small_model}</code>, below it to
+    <code>${cfg.large_model}</code>.</p>`;
+}
+
+async function runTry() {
+  const text = $("prompt").value.trim();
+  if (!text) return;
+  $("go").disabled = true;
+  const p = await score(text);
+  $("result").innerHTML = verdictHtml(p);
+  $("result").hidden = false;
+  $("go").disabled = false;
+}
+
+async function showExample(i) {
+  const r = examples[i];
+  const p = await score(r.prompt);
+  const ok = r.small_ok ? "good enough" : "not good enough";
+  $("example").innerHTML = `<p class="prompt-text">${escapeHtml(r.prompt)}</p>
+    ${verdictHtml(p)}
+    <p class="muted">Scores (${escapeHtml(r.scorer)}): small <b>${r.small_score}</b>, large
+    <b>${r.large_score}</b>, so the small answer was <b>${ok}</b>.</p>
+    <div class="answers">
+      <div><h3>Small model answer</h3><pre>${escapeHtml(r.small_answer)}</pre></div>
+      <div><h3>Large model answer</h3><pre>${escapeHtml(r.large_answer)}</pre></div>
+    </div>`;
+}
+
+examples.forEach((r, i) => {
+  const o = document.createElement("option");
+  o.value = i;
+  o.textContent = `[${r.category}] ${r.prompt.slice(0, 90)}`;
+  $("pick").append(o);
+});
+$("example").innerHTML = '<p class="muted">Loading the router…</p>';
+
+try {
+  await load();
+  $("status").textContent = "Router loaded.";
+  $("go").disabled = false;
+  $("go").addEventListener("click", runTry);
+  $("prompt").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) runTry();
+  });
+  $("pick").addEventListener("change", (e) => showExample(Number(e.target.value)));
+  showExample(0);
+} catch (err) {
+  console.error(err);
+  $("status").textContent = "Could not load the router in this browser: " + err.message;
+  $("example").innerHTML = `<p class="muted">Could not load the router: ${escapeHtml(err.message)}</p>`;
+}
+</script>
+</body>
+</html>
