@@ -4,6 +4,10 @@ A learned LLM router. For each prompt, a small fine tuned classifier decides whe
 small model is good enough or the request needs an expensive large model. It runs behind an
 OpenAI compatible proxy, so a client only changes its base URL and sets `"model": "auto"`.
 
+[Demo](https://huggingface.co/spaces/Ilf-Ali/switchboard) (runs in the browser) ·
+[Model](https://huggingface.co/Ilf-Ali/switchboard-router) ·
+[Dataset](https://huggingface.co/datasets/Ilf-Ali/switchboard-routing)
+
 > **At threshold 0.79, Switchboard sends 80% of prompts to the small model and keeps 98.0% of the large model's quality, cutting cost by 30%.**
 
 ![Cost vs quality on the test split](results/cost_vs_quality.png)
