@@ -29,9 +29,12 @@ dev = [
     "respx>=0.21",
     "ruff>=0.6",
 ]
-space = [
-    "gradio==6.32.0",
+export = [
+    "onnx>=1.23.2",
+    "onnxruntime>=1.32.0",
+    "onnxscript>=0.7.2",
 ]
+space = []
 
 [build-system]
 requires = ["hatchling"]

@@ -14,6 +14,7 @@ README. Repo names: <HF_USERNAME>/switchboard-routing (dataset), <HF_USERNAME>/s
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 from pathlib import Path
@@ -118,19 +119,48 @@ def build_model_dir(out: Path) -> None:
     src = ROOT / settings().training.output_dir
     for f in ("config.json", "model.safetensors", "tokenizer.json", "tokenizer_config.json"):
         shutil.copy2(src / f, out / f)
+    # fp16 ONNX for transformers.js in the static Space (switchboard.train.export_onnx).
+    (out / "onnx").mkdir(exist_ok=True)
+    shutil.copy2(src / "onnx" / "model_fp16.onnx", out / "onnx" / "model_fp16.onnx")
     shutil.copy2(CHART, out / CHART.name)
 
 
-def build_space_dir(out: Path, vals: dict[str, str]) -> None:
-    space_src = ROOT / "space"
-    for f in ("app.py", "requirements.txt"):
-        shutil.copy2(space_src / f, out / f)
+EXAMPLE_COLUMNS = [
+    "category",
+    "prompt",
+    "small_answer",
+    "large_answer",
+    "small_score",
+    "large_score",
+    "scorer",
+    "small_ok",
+]
+
+
+def space_examples(rows: pd.DataFrame, per_category: int = 8) -> list[dict]:
+    """A fixed spread of labelled test prompts, the same for every visitor."""
+    test = rows[(rows["split"] == "test") & rows["small_ok"].notna()]
+    picked = test.sample(frac=1, random_state=0).groupby("category").head(per_category)
+    picked = picked.sort_values(["category", "id"])[EXAMPLE_COLUMNS].copy()
+    picked["small_ok"] = picked["small_ok"].astype(bool)
+    return json.loads(picked.to_json(orient="records"))
+
+
+def build_space_dir(out: Path, vals: dict[str, str], rows: pd.DataFrame) -> None:
+    shutil.copy2(ROOT / "space" / "index.html", out / "index.html")
     shutil.copy2(CHART, out / CHART.name)
-    threshold = vals["threshold"]
-    (out / "settings.env").write_text(
-        f"MODEL_REPO={vals['model_repo']}\nDATASET_REPO={vals['dataset_repo']}\n"
-        f"THRESHOLD={threshold}\nMAX_PROMPT_TOKENS={settings().dataset.max_prompt_tokens}\n"
-    )
+    config = {
+        "headline": vals["headline"],
+        "model_repo": vals["model_repo"],
+        "dataset_repo": vals["dataset_repo"],
+        "github_url": vals["github_url"],
+        "small_model": vals["small_model"],
+        "large_model": vals["large_model"],
+        "threshold": float(vals["threshold"]),
+        "max_prompt_tokens": settings().dataset.max_prompt_tokens,
+    }
+    (out / "config.json").write_text(json.dumps(config, indent=2) + "\n")
+    (out / "examples.json").write_text(json.dumps(space_examples(rows)) + "\n")
 
 
 def build_all(user: str) -> dict[str, Path]:
@@ -144,7 +174,7 @@ def build_all(user: str) -> dict[str, Path]:
     render_card("model", vals, dirs["model"])
     build_model_dir(dirs["model"])
     render_card("space", vals, dirs["space"])
-    build_space_dir(dirs["space"], vals)
+    build_space_dir(dirs["space"], vals, rows)
     return dirs
 
 
@@ -160,7 +190,7 @@ def push(target: str, folder: Path, user: str, token: str) -> str:
     )
     repo_id = f"{user}/{name}"
     api = HfApi(token=token)
-    extra = {"space_sdk": "gradio"} if target == "space" else {}
+    extra = {"space_sdk": "static"} if target == "space" else {}
     api.create_repo(repo_id, repo_type=repo_type, exist_ok=True, **extra)
     api.upload_folder(repo_id=repo_id, repo_type=repo_type, folder_path=str(folder))
     return f"https://huggingface.co/{'' if target == 'model' else repo_type + 's/'}{repo_id}"

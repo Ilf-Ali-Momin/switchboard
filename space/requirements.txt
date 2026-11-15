@@ -1,6 +1,0 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.14.1
-transformers==5.20.1
-pandas==3.0.6
-pyarrow
-huggingface_hub==2.2.0
