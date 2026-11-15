@@ -38,7 +38,7 @@ training:
   weight_decay: 0.01
   warmup_ratio: 0.1
 eval:
-  target_quality_retained: 0.95
+  target_quality_retained: 0.98
 serve:
   threshold: null            # null = the operating threshold in results/results.json
   model_dir: "models/router"
