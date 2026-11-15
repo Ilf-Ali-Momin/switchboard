@@ -29,6 +29,9 @@ dev = [
     "respx>=0.21",
     "ruff>=0.6",
 ]
+space = [
+    "gradio==6.32.0",
+]
 
 [build-system]
 requires = ["hatchling"]
